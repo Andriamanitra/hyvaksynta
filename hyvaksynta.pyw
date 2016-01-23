@@ -6,6 +6,7 @@
 
 from tkinter import *
 import simpledialog
+import random
 
 
 class HyvaksyntaUI:
@@ -14,10 +15,8 @@ class HyvaksyntaUI:
         self.__ikkuna.title("Hyvaksyntaohjelma")
         self.__ikkuna.bind("<Left>", self.hyvaksy)
         self.__ikkuna.bind("<Right>", self.hylkaa)
-        self.__ikkuna.bind("y", self.hyvaksy)
-        self.__ikkuna.bind("n", self.hylkaa)
-        self.__ikkuna.bind("z", self.hyvaksy)
-        self.__ikkuna.bind("x", self.hylkaa)
+        self.__ikkuna.bind("1", self.hyvaksy)
+        self.__ikkuna.bind("2", self.hylkaa)
         self.__sanat = []
         self.alusta_widgetit()
         self.kysy_tiedostonimi()
@@ -64,11 +63,8 @@ class HyvaksyntaUI:
         self.hae_sana()
         self.__sanalabel.config(text=self.__sana)
 
-    def key(self, event):
-        print(repr(event.char))
-
     def hae_sana(self):
-        self.__sana = self.__sanat.pop(0)
+        self.__sana = self.__sanat.pop(random.randrange(len(self.__sanat)))
 
     def lue_sanalista(self, tiedostonimi):
         sanafilu = open(tiedostonimi, "r", encoding="utf8")
