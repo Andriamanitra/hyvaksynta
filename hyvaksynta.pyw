@@ -14,14 +14,11 @@ class HyvaksyntaUI:
     def __init__(self):
         self.__ikkuna = Tk()
         self.__ikkuna.title("Hyvaksyntaohjelma")
-        self.__ikkuna.bind("<Left>", self.hyvaksy)
-        self.__ikkuna.bind("<Right>", self.hylkaa)
-        self.__ikkuna.bind("1", self.hyvaksy)
-        self.__ikkuna.bind("2", self.hylkaa)
         self.__sanat = []
         self.__sananro = 0
         self.alusta_widgetit()
         self.kysy_tiedostonimi()
+        self.bindaa()
         self.__ikkuna.mainloop()
 
     def alusta_widgetit(self):
@@ -67,24 +64,29 @@ class HyvaksyntaUI:
                 
 
     def hylkaa(self, event=""):
-        self.hae_sana()
+        if(self.__hylkaa_nappi.cget( "state" ) != DISABLED):
+            self.hae_sana()
 
     def hyvaksy(self, event=""):
-        self.__sanalista.insert(END, self.__sana+"\n")
-        self.__sanalista.see(END)
-        self.hae_sana()
+        if(self.__hyvaksy_nappi.cget( "state" ) != DISABLED):
+            self.__sanalista.insert(END, self.__sana+"\n")
+            self.__sanalista.see(END)
+            self.hae_sana()
 
     def hae_sana(self):
         if(self.__sanat): 
             self.__sananro += 1
             self.__sana = self.__sanat.pop(random.randrange(len(self.__sanat)))
             self.__sanalabel.config(text=self.__sana)
+            self.__sananro_text.delete(1.0, END)
+            self.__sananro_text.insert(END, self.__sananro)
         else:
             self.__sanalabel.config(text="Sanat loppu!")
             self.__hyvaksy_nappi.config(state=DISABLED)
             self.__hylkaa_nappi.config(state=DISABLED)
-        self.__sananro_text.delete(1.0, END)
-        self.__sananro_text.insert(END, self.__sananro)
+            self.__sananro_text.delete(1.0, END)
+            self.__sananro_text.insert(END, self.__sananro)
+            self.__sananro_text.config(state=DISABLED)
 
     def lue_sanalista(self, tiedostonimi):
         sanafilu = open(tiedostonimi, "r", encoding="utf8")
@@ -92,5 +94,10 @@ class HyvaksyntaUI:
             self.__sanat.append(line.rstrip())
         self.hylkaa()
 
+    def bindaa(self):
+        self.__ikkuna.bind("<Left>", self.hyvaksy)
+        self.__ikkuna.bind("<Right>", self.hylkaa)
+        self.__ikkuna.bind("1", self.hyvaksy)
+        self.__ikkuna.bind("2", self.hylkaa)
 
 HyvaksyntaUI()
