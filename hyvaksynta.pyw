@@ -5,6 +5,7 @@
 # tiedostosta luettuja rivejä
 
 from tkinter import *
+from tkinter.messagebox import showerror
 import simpledialog
 import random
 
@@ -28,19 +29,19 @@ class HyvaksyntaUI:
         self.__sanalabel.config(text="", font=("Arial", 24))
         self.__sanalabel.grid(row=0, columnspan=3)
 
-        hyvaksy_nappi = Button(self.__ikkuna, text="Hyväksy",
+        self.__hyvaksy_nappi = Button(self.__ikkuna, text="Hyväksy",
                                command=self.hyvaksy)
-        hyvaksy_nappi.config(width=12)
-        hyvaksy_nappi.grid(row=1, column=0)
+        self.__hyvaksy_nappi.config(width=12)
+        self.__hyvaksy_nappi.grid(row=1, column=0)
 
         self.__sananro_text = Text()
-        self.__sananro_text.config(height=1, width=4)
+        self.__sananro_text.config(height=1, width=6)
         self.__sananro_text.grid(row=1, column=1)
         
-        hylkaa_nappi = Button(self.__ikkuna, text="Hylkää",
+        self.__hylkaa_nappi = Button(self.__ikkuna, text="Hylkää",
                               command=self.hylkaa)
-        hylkaa_nappi.config(width=12)
-        hylkaa_nappi.grid(row=1, column=2)
+        self.__hylkaa_nappi.config(width=12)
+        self.__hylkaa_nappi.grid(row=1, column=2)
 
         textframe = Frame(self.__ikkuna)
         textframe.grid(row=2, columnspan=3, padx=10, pady=10)
@@ -52,29 +53,38 @@ class HyvaksyntaUI:
         self.__scroll.config(command=self.__sanalista.yview)
 
     def kysy_tiedostonimi(self):
+        self.__ikkuna.wm_state("withdrawn")
         tiedostonimi = simpledialog.askstring("Anna tiedostonimi", "Tiedostonimi", parent=self.__ikkuna)
-        if (tiedostonimi == "" or tiedostonimi == None):
-            self.__ikkuna.destroy()
+        self.__ikkuna.wm_state("normal")
+        try:
+            self.lue_sanalista(tiedostonimi)
+        except FileNotFoundError:
+            showerror("Open file", "Tiedostoa ei voitu avata")
+            self.__sanalabel.config(text="Ei oo sanoja..")
+            self.__hyvaksy_nappi.config(state=DISABLED)
+            self.__hylkaa_nappi.config(state=DISABLED)
             return
-        self.lue_sanalista(tiedostonimi)
+                
 
     def hylkaa(self, event=""):
         self.hae_sana()
-        self.__sananro_text.delete(1.0, END)
-        self.__sananro_text.insert(END, self.__sananro)
-        self.__sanalabel.config(text=self.__sana)
 
     def hyvaksy(self, event=""):
         self.__sanalista.insert(END, self.__sana+"\n")
         self.__sanalista.see(END)
         self.hae_sana()
-        self.__sananro_text.delete(1.0, END)
-        self.__sananro_text.insert(END, self.__sananro)
-        self.__sanalabel.config(text=self.__sana)
 
     def hae_sana(self):
-        self.__sananro += 1
-        self.__sana = self.__sanat.pop(random.randrange(len(self.__sanat)))
+        if(self.__sanat): 
+            self.__sananro += 1
+            self.__sana = self.__sanat.pop(random.randrange(len(self.__sanat)))
+            self.__sanalabel.config(text=self.__sana)
+        else:
+            self.__sanalabel.config(text="Sanat loppu!")
+            self.__hyvaksy_nappi.config(state=DISABLED)
+            self.__hylkaa_nappi.config(state=DISABLED)
+        self.__sananro_text.delete(1.0, END)
+        self.__sananro_text.insert(END, self.__sananro)
 
     def lue_sanalista(self, tiedostonimi):
         sanafilu = open(tiedostonimi, "r", encoding="utf8")
